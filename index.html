@@ -1,0 +1,67 @@
+<html>
+  <head>
+    <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script>
+      $(function() {
+        var tasks = [];
+
+        $("form").submit(function(event){
+          var task = $("#task").val();
+          
+          var task_id = tasks.length;
+          tasks[task_id] = task;
+
+          var row = $('<tr/>').attr('data-task-id', task_id);
+          var actions_cell = $('<td/>').attr('class', 'task-actions').html("<a href='#' class='done'>Done</a>");
+          var cell = $('<td/>').attr('class', 'task-text').text(task);
+          row.append(actions_cell).append(cell);
+          $('table tbody').append(row);
+
+          event.preventDefault();
+        });
+
+        var start_edit_handler = function(event) {
+          var input_elm = $("<input/>").attr('class', 'task-editor').attr('type', 'text').val($(this).text());
+          $(this).html(input_elm);
+          input_elm.focus();
+          $(document).off('click', '.task-text');
+        };
+
+        $(document).on('click', '.task-text', start_edit_handler);
+
+        $(document).on('blur', '.task-editor', function(event) {
+          var row = $(this).parents('tr');
+          var task_id = row.attr('data-task-id');
+
+          tasks[task_id] = $(this).val();
+
+          $(this).parents('td').text(tasks[task_id]);
+
+          $(document).on('click', '.task-text', start_edit_handler);
+        });
+
+        $(document).on('click', '.done', function(event) {
+          var row = $(this).parents('tr');
+          var task_id = row.attr('data-task-id');
+          var text_cell = row.children('.task-text').css('text-decoration', 'line-through');
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <form>
+      <p><label for="task">Task</label><input type="text" id="task"></p>
+      <p><button id="task-add">Add</button></p>
+    </form>
+    <table>
+      <thead>
+        <tr>
+          <th>Actions</th>
+          <th>Name</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </body>
+</html>
